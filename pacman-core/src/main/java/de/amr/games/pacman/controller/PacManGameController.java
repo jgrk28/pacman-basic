@@ -107,6 +107,7 @@ public class PacManGameController extends FiniteStateMachine<PacManGameState> {
 	private boolean attractMode;
 	private boolean playerImmune;
 	private int huntingPhase;
+	private HuntingStrategy huntingStrategy;
 
 	public PacManGameUI userInterface;
 	public final Autopilot autopilot = new Autopilot();
@@ -161,6 +162,7 @@ public class PacManGameController extends FiniteStateMachine<PacManGameState> {
 	public void play(GameVariant variant) {
 		gameVariant = variant;
 		gameModel = gameModels[gameVariant.ordinal()];
+		huntingStrategy = new OriginalHuntingStrategy(gameModel);
 		changeState(INTRO);
 	}
 
@@ -571,45 +573,7 @@ public class PacManGameController extends FiniteStateMachine<PacManGameState> {
 		} else if (isScatteringPhase(huntingPhase) && ghost.elroy == 0) {
 			ghost.targetTile = gameModel.currentLevel.world.ghostScatterTile(ghost.id);
 		} else {
-			ghost.targetTile = ghostHuntingTarget(ghost.id);
-		}
-	}
-
-	/*
-	 * The so called "ghost AI".
-	 */
-	private V2i ghostHuntingTarget(int ghostID) {
-		V2i playerTile = gameModel.player.tile();
-		switch (ghostID) {
-
-		case BLINKY:
-			return playerTile;
-
-		case PINKY: {
-			V2i target = playerTile.plus(gameModel.player.dir.vec.scaled(4));
-			if (gameModel.player.dir == Direction.UP) {
-				// simulate overflow bug
-				target = target.plus(-4, 0);
-			}
-			return target;
-		}
-
-		case INKY: {
-			V2i twoAheadPlayer = playerTile.plus(gameModel.player.dir.vec.scaled(2));
-			if (gameModel.player.dir == Direction.UP) {
-				// simulate overflow bug
-				twoAheadPlayer = twoAheadPlayer.plus(-2, 0);
-			}
-			return twoAheadPlayer.scaled(2).minus(gameModel.ghosts[BLINKY].tile());
-		}
-
-		case CLYDE: /* A Boy Named Sue */
-			return gameModel.ghosts[CLYDE].tile().euclideanDistance(playerTile) < 8
-					? gameModel.currentLevel.world.ghostScatterTile(CLYDE)
-					: playerTile;
-
-		default:
-			throw new IllegalArgumentException("Unknown ghost, id: " + ghostID);
+			ghost.targetTile = this.huntingStrategy.ghostHuntingTarget(ghost.id);
 		}
 	}
 
