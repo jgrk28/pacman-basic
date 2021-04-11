@@ -1,6 +1,7 @@
 module de.amr.games.pacman {
+  requires java.desktop;
 
-	exports de.amr.games.pacman.controller;
+  exports de.amr.games.pacman.controller;
 	exports de.amr.games.pacman.controller.event;
 	exports de.amr.games.pacman.lib;
 	exports de.amr.games.pacman.model.common;
