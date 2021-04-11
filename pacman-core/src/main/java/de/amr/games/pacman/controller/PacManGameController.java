@@ -24,6 +24,7 @@ import static de.amr.games.pacman.model.common.GhostState.LEAVING_HOUSE;
 import static de.amr.games.pacman.model.common.GhostState.LOCKED;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -642,6 +643,14 @@ public class PacManGameController extends FiniteStateMachine<PacManGameState> {
 			}
 		} else {
 			preferredLockedGhostInHouse().ifPresent(ghost -> ++ghost.dotCounter);
+		}
+	}
+
+	public HashMap<V2i, Double> getOccupancy() {
+		if (huntingStrategy instanceof OccupancyHuntingStrategy) {
+			return ((OccupancyHuntingStrategy) huntingStrategy).occupancy;
+		} else {
+			return null;
 		}
 	}
 }

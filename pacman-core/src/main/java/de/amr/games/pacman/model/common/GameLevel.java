@@ -81,6 +81,11 @@ public class GameLevel {
 
 	}
 
+	public PacManGameWorld getWorld() {
+		return this.world;
+	}
+
+
 	public int eatenFoodCount() {
 		return totalFoodCount - foodRemaining;
 	}

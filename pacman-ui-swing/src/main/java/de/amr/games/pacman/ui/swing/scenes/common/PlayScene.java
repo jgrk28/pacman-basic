@@ -2,6 +2,8 @@ package de.amr.games.pacman.ui.swing.scenes.common;
 
 import static de.amr.games.pacman.model.world.PacManGameWorld.t;
 
+import de.amr.games.pacman.controller.OccupancyHuntingStrategy;
+import de.amr.games.pacman.ui.swing.rendering.common.Occupancy2D;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.util.List;
@@ -39,6 +41,7 @@ public class PlayScene extends GameScene {
 
 	private Player2D player2D;
 	private List<Ghost2D> ghosts2D;
+	private Occupancy2D occupancy2D;
 	private List<Energizer2D> energizers2D;
 	private Bonus2D bonus2D;
 
@@ -56,6 +59,8 @@ public class PlayScene extends GameScene {
 
 		ghosts2D = game().ghosts().map(Ghost2D::new).collect(Collectors.toList());
 		ghosts2D.forEach(ghost2D -> ghost2D.setRendering(rendering));
+
+		occupancy2D = new Occupancy2D(gameController);
 
 		energizers2D = game().currentLevel.world.energizerTiles().map(Energizer2D::new).collect(Collectors.toList());
 
@@ -261,6 +266,7 @@ public class PlayScene extends GameScene {
 			ghost2D.setDisplayFrightened(game().player.powerTimer.isRunning());
 			ghost2D.render(g);
 		});
+		occupancy2D.render(g);
 		if (gameController.isGameRunning()) {
 			rendering.drawScore(g, game(), false);
 			rendering.drawLivesCounter(g, game(), t(2), t(34));
