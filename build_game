@@ -1,0 +1,8 @@
+#!/bin/bash
+
+cd pacman-core
+mvn clean install
+cd ../pacman-ui-swing
+mvn clean install
+cd ..
+java -jar pacman-ui-swing/target/pacman-ui-swing-1.0-jar-with-dependencies.jar
