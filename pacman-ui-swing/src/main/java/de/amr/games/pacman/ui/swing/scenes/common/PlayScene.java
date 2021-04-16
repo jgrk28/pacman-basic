@@ -260,13 +260,13 @@ public class PlayScene extends GameScene {
 		} else {
 			rendering.drawGameState(g, game(), gameController.state);
 		}
+		occupancy2D.render(g);
 		bonus2D.render(g);
 		player2D.render(g);
 		ghosts2D.forEach(ghost2D -> {
 			ghost2D.setDisplayFrightened(game().player.powerTimer.isRunning());
 			ghost2D.render(g);
 		});
-		occupancy2D.render(g);
 		if (gameController.isGameRunning()) {
 			rendering.drawScore(g, game(), false);
 			rendering.drawLivesCounter(g, game(), t(2), t(34));
