@@ -22,6 +22,7 @@ public class Occupancy2D {
     HashMap<V2i, Double> occupancyMap = controller.getOccupancy();
     if (occupancyMap != null) {
       for (Map.Entry<V2i, Double> tileOccupancy : occupancyMap.entrySet()) {
+        //Draw a red box with varying opacity based on probability
         double probability = tileOccupancy.getValue();
         int adjustedOpacity = (int) (logFunc(logFunc(logFunc(probability))) * 255);
         Color myColour = new Color(255, 0, 0, adjustedOpacity);

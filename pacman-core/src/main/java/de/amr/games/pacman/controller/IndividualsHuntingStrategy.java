@@ -9,10 +9,8 @@ import de.amr.games.pacman.lib.V2i;
 import de.amr.games.pacman.model.common.AbstractGameModel;
 import de.amr.games.pacman.model.common.Ghost;
 import de.amr.games.pacman.model.world.PacManGameWorld;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -28,6 +26,7 @@ public class IndividualsHuntingStrategy extends HuntingStrategy {
     this.occupancy = new HashMap<>();
   }
 
+  //Set occupancy to know where PacMan is at the start
   private void initOccupancy() {
     gameWorld.tiles().filter(
         tile -> !gameWorld.isWall(tile) && !gameWorld.isGhostHouseDoor(tile)
@@ -36,6 +35,7 @@ public class IndividualsHuntingStrategy extends HuntingStrategy {
     occupancy.replace(pacTile, 1.0);
   }
 
+  //Distribute occupancy equally
   private void distributeOccupancy() {
     long numTiles = gameWorld.tiles().filter(
         tile -> !gameWorld.isWall(tile) && !gameWorld.isGhostHouseDoor(tile)
@@ -48,17 +48,20 @@ public class IndividualsHuntingStrategy extends HuntingStrategy {
 
   @Override
   V2i ghostHuntingTarget(int ghostID) {
+    //If the occupancy map has not been made or has been cleared re-initialize
     if (occupancy.size() == 0) {
       this.gameWorld = gameModel.currentLevel.getWorld();
       initOccupancy();
     }
 
+    //Get all tiles seen by the ghosts
     Set<V2i> seenTiles = new HashSet<>();
     V2i pacTile = gameModel.player.tile();
     for (Ghost ghost : gameModel.ghosts) {
       seenTiles.addAll(getSeenTiles(ghost));
     }
 
+    //If a ghost can see PacMan set that position to a 1
     if (seenTiles.contains(pacTile)) {
       for (V2i tile : occupancy.keySet()) {
         if (tile.equals(pacTile)) {
@@ -68,22 +71,24 @@ public class IndividualsHuntingStrategy extends HuntingStrategy {
         }
       }
     } else {
-      recalculateOccupancy(seenTiles, ghostID);
+      //Else disperse current probabilities based on seen tiles
+      recalculateOccupancy(seenTiles);
     }
 
+    //Find the most likely tile for PacMan to be on
     Optional<Entry<V2i, Double>> maxEntry = occupancy.entrySet().stream()
         .max((Map.Entry<V2i, Double> e1, Map.Entry<V2i, Double> e2) ->
             e1.getValue().compareTo(e2.getValue())
         );
     V2i target = maxEntry.get().getKey();
+    //Pinky tries to pincer
     if (ghostID == PINKY) {
       target = target.plus(gameModel.ghosts[ghostID].dir.vec.scaled(3));
     }
     return target;
   }
 
-  private void recalculateOccupancy(Set<V2i> seenTiles, int ghostID) {
-    Set<V2i> visitedTiles = new HashSet<>();
+  private void recalculateOccupancy(Set<V2i> seenTiles) {
     Double amountWiped = 0.0;
 
     for (V2i seenTile : seenTiles) {

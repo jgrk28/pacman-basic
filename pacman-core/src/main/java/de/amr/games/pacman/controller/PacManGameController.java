@@ -167,6 +167,7 @@ public class PacManGameController extends FiniteStateMachine<PacManGameState> {
 	public void play(GameVariant variant) {
 		gameVariant = variant;
 		gameModel = gameModels[gameVariant.ordinal()];
+		//Set hunting strategy based on variant
 		if (gameVariant.equals(OCCUPANCY)) {
 			huntingStrategy = new OccupancyHuntingStrategy(gameModel);
 		} else if (gameVariant.equals(INDIVIDUALS)) {

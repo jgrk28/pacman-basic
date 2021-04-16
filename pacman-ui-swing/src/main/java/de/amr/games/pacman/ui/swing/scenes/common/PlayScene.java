@@ -2,7 +2,6 @@ package de.amr.games.pacman.ui.swing.scenes.common;
 
 import static de.amr.games.pacman.model.world.PacManGameWorld.t;
 
-import de.amr.games.pacman.controller.OccupancyHuntingStrategy;
 import de.amr.games.pacman.model.common.GameVariant;
 import de.amr.games.pacman.ui.swing.rendering.common.GhostVision2D;
 import de.amr.games.pacman.ui.swing.rendering.common.Occupancy2D;

@@ -12,8 +12,6 @@ import de.amr.games.pacman.model.common.Ghost;
 import de.amr.games.pacman.model.common.GhostState;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.util.HashMap;
-import java.util.Map;
 
 public class GhostVision2D {
   public final Ghost ghost;
@@ -29,11 +27,13 @@ public class GhostVision2D {
       return;
     }
     V2i currTile = ghost.tile();
+    //Draw vision area based on ghost type
     switch (ghost.id) {
       case INKY:
         Color inkyColour = new Color(25, 25, 255, 150);
         g.setColor(inkyColour);
 
+        //Rectangle 8 tiles long
         V2i inkyEndSight = currTile.plus(ghost.dir.vec.scaled(8));
         int inkyTop = Math.min(currTile.y, inkyEndSight.y) * TS;
         int inkyHeight = (Math.abs(currTile.y - inkyEndSight.y) + 1) * TS;
@@ -45,6 +45,7 @@ public class GhostVision2D {
         Color blinkyColour = new Color(150, 0, 100, 150);
         g.setColor(blinkyColour);
 
+        //Rectangle 4 tiles long terminated by walls
         V2i blinkyEndSight = currTile;
         for (int i = 0; i <= 4; i++) {
           V2i aheadGhost = currTile.plus(ghost.dir.vec.scaled(i));
@@ -64,6 +65,7 @@ public class GhostVision2D {
         Color pinkyColour = new Color(255, 100, 150, 200);
         g.setColor(pinkyColour);
 
+        //Rectangle 4 tiles long terminated by walls
         V2i pinkyEndSight = currTile;
         for (int i = 0; i <= 4; i++) {
           V2i aheadGhost = currTile.plus(ghost.dir.vec.scaled(i));
@@ -82,6 +84,7 @@ public class GhostVision2D {
       case CLYDE:
         Color clydeColour = new Color(255, 150, 0, 50);
         g.setColor(clydeColour);
+        //Circle with radius of 6
         int circRight = (currTile.x - 6) * TS;
         int circTop = (currTile.y - 6) * TS;
         g.fillOval(circRight, circTop, 13 * TS, 13 * TS);
