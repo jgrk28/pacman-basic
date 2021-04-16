@@ -21,13 +21,24 @@ public class Occupancy2D {
     HashMap<V2i, Double> occupancyMap = controller.getOccupancy();
     if (occupancyMap != null) {
       for (Map.Entry<V2i, Double> tileOccupancy : occupancyMap.entrySet()) {
-        int opacity = (int) (tileOccupancy.getValue() * 255);
-        Color myColour = new Color(255, 0, 0, opacity);
+        double probability = tileOccupancy.getValue();
+        int adjustedOpacity = (int) (logFunc(logFunc(logFunc(probability))) * 255);
+        Color myColour = new Color(255, 0, 0, adjustedOpacity);
         g.setColor(myColour);
         int right = TS * tileOccupancy.getKey().x;
         int top = TS * tileOccupancy.getKey().y;
         g.fillRect(right, top, TS, TS);
       }
     }
+  }
+
+  //This log function will take a number between 0 and 1 and
+  //will output a number between 0 and 1. Lower number are scaled
+  //up while higher numbers stay the same
+  private double logFunc(Double probability) {
+    //scale to number between 1 and 10
+    double oneToTen = (probability * 9) + 1;
+    //take log base ten to get back to a number between 0 and 1
+    return Math.log10(oneToTen);
   }
 }
