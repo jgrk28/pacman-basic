@@ -57,8 +57,11 @@ public class OccupancyHuntingStrategy extends HuntingStrategy {
     V2i pacTile = gameModel.player.tile();
     for (Ghost ghost : gameModel.ghosts) {
       V2i ghostTile = ghost.tile();
-      for (int i = 0; i <= 4; i++) {
+      for (int i = 0; i <= 8; i++) {
         V2i aheadGhost = ghostTile.plus(gameModel.ghosts[ghostID].dir.vec.scaled(i));
+        if (gameWorld.isWall(aheadGhost)) {
+          break;
+        }
         seenTiles.add(aheadGhost);
       }
     }
@@ -94,7 +97,17 @@ public class OccupancyHuntingStrategy extends HuntingStrategy {
         continue;
       }
       Double occupancyValue = occupancy.get(seenTile);
-      amountWiped += occupancyValue;
+      long numValidNeighbors = gameWorld.neighborTiles(seenTile).filter(
+          neighbor -> gameWorld.insideMap(neighbor) && !gameWorld.isWall(neighbor) && !gameWorld.isGhostHouseDoor(neighbor) && !seenTiles.contains(neighbor)
+      ).count();
+      if (numValidNeighbors > 0) {
+        double amountDistributed = occupancyValue / numValidNeighbors;
+        Stream<V2i> validNeighbors = gameWorld.neighborTiles(seenTile).filter(neighbor ->
+            gameWorld.insideMap(neighbor) && !gameWorld.isWall(neighbor) && !gameWorld.isGhostHouseDoor(neighbor) && !seenTiles.contains(neighbor));
+        validNeighbors.forEach(neighbor -> modifyTileOccupancy(neighbor, amountDistributed));
+      } else {
+        amountWiped += occupancyValue;
+      }
       occupancy.replace(seenTile, 0.0);
     }
 
