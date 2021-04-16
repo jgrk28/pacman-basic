@@ -34,6 +34,8 @@ public interface PacManGameWorld {
 		return new V2d(position.x - (int) (position.x / TS) * TS, position.y - (int) (position.y / TS) * TS);
 	}
 
+	Stream<V2i> neighborTiles(V2i tile);
+
 	/**
 	 * @return Number of tiles in horizontal direction.
 	 */

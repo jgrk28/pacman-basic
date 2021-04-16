@@ -67,7 +67,8 @@ public class MapBasedPacManGameWorld implements PacManGameWorld {
 		energizerTiles = tiles().filter(tile -> map.data(tile) == WorldMap.ENERGIZER).collect(Collectors.toList());
 	}
 
-	private Stream<V2i> neighborTiles(V2i tile) {
+	@Override
+	public Stream<V2i> neighborTiles(V2i tile) {
 		return Stream.of(Direction.values()).map(dir -> tile.plus(dir.vec));
 	}
 

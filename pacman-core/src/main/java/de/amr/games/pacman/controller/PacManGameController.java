@@ -163,7 +163,7 @@ public class PacManGameController extends FiniteStateMachine<PacManGameState> {
 	public void play(GameVariant variant) {
 		gameVariant = variant;
 		gameModel = gameModels[gameVariant.ordinal()];
-		huntingStrategy = new OriginalHuntingStrategy(gameModel);
+		huntingStrategy = new OccupancyHuntingStrategy(gameModel);
 		changeState(INTRO);
 	}
 
