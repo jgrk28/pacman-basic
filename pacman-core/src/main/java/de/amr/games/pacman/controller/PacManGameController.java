@@ -12,6 +12,7 @@ import static de.amr.games.pacman.controller.PacManGameState.READY;
 import static de.amr.games.pacman.lib.Logging.log;
 import static de.amr.games.pacman.model.common.GameVariant.MS_PACMAN;
 import static de.amr.games.pacman.model.common.GameVariant.PACMAN;
+import static de.amr.games.pacman.model.common.GameVariant.OCCUPANCY;
 import static de.amr.games.pacman.model.common.Ghost.BLINKY;
 import static de.amr.games.pacman.model.common.Ghost.CLYDE;
 import static de.amr.games.pacman.model.common.Ghost.INKY;
@@ -94,10 +95,11 @@ public class PacManGameController extends FiniteStateMachine<PacManGameState> {
 
 	private static final Map<Integer, Integer> INTERMISSION_NUMBER_BY_LEVEL = Map.of(2, 1, 5, 2, 9, 3, 13, 3, 17, 3);
 
-	private final AbstractGameModel[] gameModels = new AbstractGameModel[2];
+	private final AbstractGameModel[] gameModels = new AbstractGameModel[3];
 	{
 		gameModels[MS_PACMAN.ordinal()] = new MsPacManGame();
 		gameModels[PACMAN.ordinal()] = new PacManGame();
+		gameModels[OCCUPANCY.ordinal()] = new PacManGame();
 	}
 
 	private GameVariant gameVariant;
@@ -163,7 +165,12 @@ public class PacManGameController extends FiniteStateMachine<PacManGameState> {
 	public void play(GameVariant variant) {
 		gameVariant = variant;
 		gameModel = gameModels[gameVariant.ordinal()];
-		huntingStrategy = new OccupancyHuntingStrategy(gameModel);
+		if (gameVariant.equals(OCCUPANCY)) {
+			huntingStrategy = new OccupancyHuntingStrategy(gameModel);
+		} else {
+			huntingStrategy = new OriginalHuntingStrategy(gameModel);
+		}
+
 		changeState(INTRO);
 	}
 

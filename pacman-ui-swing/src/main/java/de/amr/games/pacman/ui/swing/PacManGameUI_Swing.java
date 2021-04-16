@@ -3,6 +3,7 @@ package de.amr.games.pacman.ui.swing;
 import static de.amr.games.pacman.controller.PacManGameState.INTERMISSION;
 import static de.amr.games.pacman.lib.Logging.log;
 import static de.amr.games.pacman.model.common.GameVariant.MS_PACMAN;
+import static de.amr.games.pacman.model.common.GameVariant.OCCUPANCY;
 import static de.amr.games.pacman.model.common.GameVariant.PACMAN;
 import static de.amr.games.pacman.model.world.PacManGameWorld.TS;
 
@@ -149,6 +150,14 @@ public class PacManGameUI_Swing implements PacManGameUI {
 		));
 
 		scenes.put(PACMAN, Arrays.asList(//
+				new PacMan_IntroScene(gameController, unscaledSize), //
+				new PacMan_IntermissionScene1(gameController, unscaledSize), //
+				new PacMan_IntermissionScene2(gameController, unscaledSize), //
+				new PacMan_IntermissionScene3(gameController, unscaledSize), //
+				new PlayScene(gameController, unscaledSize, RENDERING_PACMAN, SOUND.get(PACMAN))//
+		));
+
+		scenes.put(OCCUPANCY, Arrays.asList(//
 				new PacMan_IntroScene(gameController, unscaledSize), //
 				new PacMan_IntermissionScene1(gameController, unscaledSize), //
 				new PacMan_IntermissionScene2(gameController, unscaledSize), //

@@ -7,5 +7,5 @@ package de.amr.games.pacman.model.common;
  */
 public enum GameVariant {
 
-	MS_PACMAN, PACMAN;
+	MS_PACMAN, PACMAN, OCCUPANCY;
 }
