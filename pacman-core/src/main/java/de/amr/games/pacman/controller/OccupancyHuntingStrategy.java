@@ -79,25 +79,14 @@ public class OccupancyHuntingStrategy extends HuntingStrategy {
 
   private void recalculateOccupancy(List<V2i> seenTiles, int ghostID) {
     Set<V2i> visitedTiles = new HashSet<>();
+    Double amountWiped = 0.0;
 
     for (V2i seenTile : seenTiles) {
       if (!gameWorld.insideMap(seenTile) || gameWorld.isWall(seenTile) || gameWorld.isGhostHouseDoor(seenTile)) {
         continue;
       }
       Double occupancyValue = occupancy.get(seenTile);
-
-      V2i ghostTile = gameModel.ghosts[ghostID].tile();
-      V2i behindGhost = ghostTile.minus(gameModel.ghosts[ghostID].dir.vec);
-
-      long numValidNeighbors = gameWorld.neighborTiles(seenTile).filter(
-          neighbor -> gameWorld.insideMap(neighbor) && !visitedTiles.contains(neighbor) && !gameWorld.isWall(neighbor) && !gameWorld.isGhostHouseDoor(neighbor) && !neighbor.equals(behindGhost)
-      ).count();
-      Double amountToReceive = occupancyValue / numValidNeighbors;
-      //Reload stream after terminating with count
-      Stream<V2i> validNeighbors = gameWorld.neighborTiles(seenTile).filter(
-          neighbor -> gameWorld.insideMap(neighbor) && !visitedTiles.contains(neighbor) && !gameWorld.isWall(neighbor) && !gameWorld.isGhostHouseDoor(neighbor) && !neighbor.equals(behindGhost)
-      );
-      validNeighbors.forEach(neighbor -> modifyTileOccupancy(neighbor, amountToReceive));
+      amountWiped += occupancyValue;
       occupancy.replace(seenTile, 0.0);
     }
 
@@ -117,6 +106,21 @@ public class OccupancyHuntingStrategy extends HuntingStrategy {
       validNeighbors = gameWorld.neighborTiles(tile).filter(neighbor ->
           gameWorld.insideMap(neighbor) && !gameWorld.isWall(neighbor) && !gameWorld.isGhostHouseDoor(neighbor) && !seenTiles.contains(neighbor));
       validNeighbors.forEach(neighbor -> modifyTileOccupancy(neighbor, amountReceived));
+    }
+
+    long numNonZero = occupancy.values().stream().filter(value -> !value.equals(0.0)).count();
+    
+    if (numNonZero == 0) {
+      initOccupancy();
+    } else {
+      Double distributeWiped = amountWiped / numNonZero;
+      for (Map.Entry<V2i, Double> tileOccupancy : occupancy.entrySet()) {
+        V2i tile = tileOccupancy.getKey();
+        Double occupancyValue = tileOccupancy.getValue();
+        if (!occupancyValue.equals(0.0)) {
+          modifyTileOccupancy(tile, distributeWiped);
+        }
+      }
     }
   }
 
