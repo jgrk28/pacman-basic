@@ -277,7 +277,10 @@ public class PacManGameController extends FiniteStateMachine<PacManGameState> {
 		}
 	}
 
-	public static boolean isScatteringPhase(int phase) {
+	public boolean isScatteringPhase(int phase) {
+		if (gameVariant == OCCUPANCY) {
+			return false;
+		}
 		return phase % 2 == 0;
 	}
 
