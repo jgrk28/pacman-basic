@@ -76,8 +76,9 @@ public class IndividualsHuntingStrategy extends HuntingStrategy {
             e1.getValue().compareTo(e2.getValue())
         );
     V2i target = maxEntry.get().getKey();
-    Double value = maxEntry.get().getValue();
-    System.out.println("Target is: " + target + " With value: " + value);
+    if (ghostID == PINKY) {
+      target = target.plus(gameModel.ghosts[ghostID].dir.vec.scaled(3));
+    }
     return target;
   }
 
