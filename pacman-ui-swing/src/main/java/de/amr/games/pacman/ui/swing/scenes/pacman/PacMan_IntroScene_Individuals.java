@@ -8,9 +8,9 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 
-public class PacMan_IntroScene_Occupancy extends PacMan_IntroScene {
+public class PacMan_IntroScene_Individuals extends PacMan_IntroScene {
 
-  public PacMan_IntroScene_Occupancy(PacManGameController controller,
+  public PacMan_IntroScene_Individuals(PacManGameController controller,
       Dimension size) {
     super(controller, size);
   }
@@ -18,6 +18,6 @@ public class PacMan_IntroScene_Occupancy extends PacMan_IntroScene {
   protected void drawGallery(Graphics2D g) {
     g.setColor(Color.WHITE);
     g.setFont(rendering.getScoreFont());
-    g.drawString("Occupancy Map", t(6), TOP_Y);
+    g.drawString("Individuals", t(6), TOP_Y);
   }
 }

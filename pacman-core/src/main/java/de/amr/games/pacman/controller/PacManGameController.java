@@ -10,6 +10,7 @@ import static de.amr.games.pacman.controller.PacManGameState.LEVEL_STARTING;
 import static de.amr.games.pacman.controller.PacManGameState.PACMAN_DYING;
 import static de.amr.games.pacman.controller.PacManGameState.READY;
 import static de.amr.games.pacman.lib.Logging.log;
+import static de.amr.games.pacman.model.common.GameVariant.INDIVIDUALS;
 import static de.amr.games.pacman.model.common.GameVariant.MS_PACMAN;
 import static de.amr.games.pacman.model.common.GameVariant.PACMAN;
 import static de.amr.games.pacman.model.common.GameVariant.OCCUPANCY;
@@ -95,11 +96,12 @@ public class PacManGameController extends FiniteStateMachine<PacManGameState> {
 
 	private static final Map<Integer, Integer> INTERMISSION_NUMBER_BY_LEVEL = Map.of(2, 1, 5, 2, 9, 3, 13, 3, 17, 3);
 
-	private final AbstractGameModel[] gameModels = new AbstractGameModel[3];
+	private final AbstractGameModel[] gameModels = new AbstractGameModel[4];
 	{
 		gameModels[MS_PACMAN.ordinal()] = new MsPacManGame();
 		gameModels[PACMAN.ordinal()] = new PacManGame();
 		gameModels[OCCUPANCY.ordinal()] = new PacManGame();
+		gameModels[INDIVIDUALS.ordinal()] = new PacManGame();
 	}
 
 	private GameVariant gameVariant;
@@ -167,6 +169,8 @@ public class PacManGameController extends FiniteStateMachine<PacManGameState> {
 		gameModel = gameModels[gameVariant.ordinal()];
 		if (gameVariant.equals(OCCUPANCY)) {
 			huntingStrategy = new OccupancyHuntingStrategy(gameModel);
+		} else if (gameVariant.equals(INDIVIDUALS)) {
+			huntingStrategy = new IndividualsHuntingStrategy(gameModel);
 		} else {
 			huntingStrategy = new OriginalHuntingStrategy(gameModel);
 		}
@@ -278,7 +282,7 @@ public class PacManGameController extends FiniteStateMachine<PacManGameState> {
 	}
 
 	public boolean isScatteringPhase(int phase) {
-		if (gameVariant == OCCUPANCY) {
+		if (gameVariant == OCCUPANCY || gameVariant == INDIVIDUALS) {
 			return false;
 		}
 		return phase % 2 == 0;
@@ -394,9 +398,9 @@ public class PacManGameController extends FiniteStateMachine<PacManGameState> {
 
 	private void updatePacManDyingState() {
 		if (stateTimer().hasExpired()) {
-			if (gameVariant == OCCUPANCY) {
-				OccupancyHuntingStrategy occHunting = (OccupancyHuntingStrategy) huntingStrategy;
-				occHunting.occupancy.clear();
+			HashMap<V2i, Double> occMap = getOccupancy();
+			if (occMap != null) {
+				occMap.clear();
 			}
 			gameModel.ghosts().forEach(ghost -> ghost.visible = true);
 			changeState(attractMode ? INTRO : --gameModel.lives > 0 ? READY : GAME_OVER);
@@ -666,6 +670,8 @@ public class PacManGameController extends FiniteStateMachine<PacManGameState> {
 	public HashMap<V2i, Double> getOccupancy() {
 		if (huntingStrategy instanceof OccupancyHuntingStrategy) {
 			return ((OccupancyHuntingStrategy) huntingStrategy).occupancy;
+		} else if (huntingStrategy instanceof IndividualsHuntingStrategy) {
+			return ((IndividualsHuntingStrategy) huntingStrategy).occupancy;
 		} else {
 			return null;
 		}

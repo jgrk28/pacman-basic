@@ -2,11 +2,13 @@ package de.amr.games.pacman.ui.swing;
 
 import static de.amr.games.pacman.controller.PacManGameState.INTERMISSION;
 import static de.amr.games.pacman.lib.Logging.log;
+import static de.amr.games.pacman.model.common.GameVariant.INDIVIDUALS;
 import static de.amr.games.pacman.model.common.GameVariant.MS_PACMAN;
 import static de.amr.games.pacman.model.common.GameVariant.OCCUPANCY;
 import static de.amr.games.pacman.model.common.GameVariant.PACMAN;
 import static de.amr.games.pacman.model.world.PacManGameWorld.TS;
 
+import de.amr.games.pacman.ui.swing.scenes.pacman.PacMan_IntroScene_Individuals;
 import de.amr.games.pacman.ui.swing.scenes.pacman.PacMan_IntroScene_Occupancy;
 import java.awt.AWTException;
 import java.awt.Canvas;
@@ -160,6 +162,14 @@ public class PacManGameUI_Swing implements PacManGameUI {
 
 		scenes.put(OCCUPANCY, Arrays.asList(//
 				new PacMan_IntroScene_Occupancy(gameController, unscaledSize), //
+				new PacMan_IntermissionScene1(gameController, unscaledSize), //
+				new PacMan_IntermissionScene2(gameController, unscaledSize), //
+				new PacMan_IntermissionScene3(gameController, unscaledSize), //
+				new PlayScene(gameController, unscaledSize, RENDERING_PACMAN, SOUND.get(PACMAN))//
+		));
+
+		scenes.put(INDIVIDUALS, Arrays.asList(//
+				new PacMan_IntroScene_Individuals(gameController, unscaledSize), //
 				new PacMan_IntermissionScene1(gameController, unscaledSize), //
 				new PacMan_IntermissionScene2(gameController, unscaledSize), //
 				new PacMan_IntermissionScene3(gameController, unscaledSize), //
