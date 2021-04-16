@@ -394,6 +394,10 @@ public class PacManGameController extends FiniteStateMachine<PacManGameState> {
 
 	private void updatePacManDyingState() {
 		if (stateTimer().hasExpired()) {
+			if (gameVariant == OCCUPANCY) {
+				OccupancyHuntingStrategy occHunting = (OccupancyHuntingStrategy) huntingStrategy;
+				occHunting.occupancy.clear();
+			}
 			gameModel.ghosts().forEach(ghost -> ghost.visible = true);
 			changeState(attractMode ? INTRO : --gameModel.lives > 0 ? READY : GAME_OVER);
 			return;

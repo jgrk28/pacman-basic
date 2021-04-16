@@ -29,6 +29,14 @@ public class OccupancyHuntingStrategy extends HuntingStrategy {
   }
 
   private void initOccupancy() {
+    gameWorld.tiles().filter(
+        tile -> !gameWorld.isWall(tile) && !gameWorld.isGhostHouseDoor(tile)
+    ).forEach(tile -> occupancy.put(tile, 0.0));
+    V2i pacTile = gameModel.player.tile();
+    occupancy.replace(pacTile, 1.0);
+  }
+
+  private void distributeOccupancy() {
     long numTiles = gameWorld.tiles().filter(
         tile -> !gameWorld.isWall(tile) && !gameWorld.isGhostHouseDoor(tile)
     ).count();
@@ -111,7 +119,7 @@ public class OccupancyHuntingStrategy extends HuntingStrategy {
     long numNonZero = occupancy.values().stream().filter(value -> !value.equals(0.0)).count();
     
     if (numNonZero == 0) {
-      initOccupancy();
+      distributeOccupancy();
     } else {
       Double distributeWiped = amountWiped / numNonZero;
       for (Map.Entry<V2i, Double> tileOccupancy : occupancy.entrySet()) {
