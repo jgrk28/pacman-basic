@@ -7,6 +7,7 @@ import static de.amr.games.pacman.model.common.GameVariant.OCCUPANCY;
 import static de.amr.games.pacman.model.common.GameVariant.PACMAN;
 import static de.amr.games.pacman.model.world.PacManGameWorld.TS;
 
+import de.amr.games.pacman.ui.swing.scenes.pacman.PacMan_IntroScene_Occupancy;
 import java.awt.AWTException;
 import java.awt.Canvas;
 import java.awt.Color;
@@ -158,7 +159,7 @@ public class PacManGameUI_Swing implements PacManGameUI {
 		));
 
 		scenes.put(OCCUPANCY, Arrays.asList(//
-				new PacMan_IntroScene(gameController, unscaledSize), //
+				new PacMan_IntroScene_Occupancy(gameController, unscaledSize), //
 				new PacMan_IntermissionScene1(gameController, unscaledSize), //
 				new PacMan_IntermissionScene2(gameController, unscaledSize), //
 				new PacMan_IntermissionScene3(gameController, unscaledSize), //

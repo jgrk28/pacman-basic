@@ -105,7 +105,7 @@ public class PacMan_IntroScene extends GameScene {
 		pacMan2D.render(g);
 	}
 
-	private void drawGallery(Graphics2D g) {
+	protected void drawGallery(Graphics2D g) {
 		g.setColor(Color.WHITE);
 		g.setFont(rendering.getScoreFont());
 		g.drawString("CHARACTER", t(6), TOP_Y);
