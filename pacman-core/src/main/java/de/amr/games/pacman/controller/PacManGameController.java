@@ -172,7 +172,10 @@ public class PacManGameController extends FiniteStateMachine<PacManGameState> {
 	}
 
 	public void toggleGameVariant() {
-		play(gameVariant == MS_PACMAN ? PACMAN : MS_PACMAN);
+		int numVariants = GameVariant.values().length;
+		int newVariant = (gameVariant.ordinal() + 1) % numVariants;
+
+		play(GameVariant.values()[newVariant]);
 	}
 
 	public AbstractGameModel game() {
