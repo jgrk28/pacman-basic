@@ -7,6 +7,7 @@ import de.amr.games.pacman.lib.V2i;
 import de.amr.games.pacman.model.common.AbstractGameModel;
 import de.amr.games.pacman.model.common.Ghost;
 import de.amr.games.pacman.model.world.PacManGameWorld;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -44,7 +45,7 @@ public class OccupancyHuntingStrategy extends HuntingStrategy {
       initOccupancy();
     }
 
-    Set<V2i> seenTiles = new HashSet<>();
+    List<V2i> seenTiles = new ArrayList<>();
     V2i pacTile = gameModel.player.tile();
     V2i ghostTile = gameModel.ghosts[ghostID].tile();
     for (int i = 0; i <= 4; i++) {
@@ -74,42 +75,42 @@ public class OccupancyHuntingStrategy extends HuntingStrategy {
     return target;
   }
 
-  private void recalculateOccupancy(Set<V2i> seenTiles, int GhostID) {
-    double wipedAmount = 0.0;
-    Set<V2i> redistributedTiles = new HashSet<>();
+  private void recalculateOccupancy(List<V2i> seenTiles, int GhostID) {
+    Set<V2i> visitedTiles = new HashSet<>();
+
+    for (V2i seenTile : seenTiles) {
+      if (!gameWorld.insideMap(seenTile) || gameWorld.isWall(seenTile) || gameWorld.isGhostHouseDoor(seenTile)) {
+        continue;
+      }
+      Double occupancyValue = occupancy.get(seenTile);
+      long numValidNeighbors = gameWorld.neighborTiles(seenTile).filter(
+          neighbor -> gameWorld.insideMap(neighbor) && !visitedTiles.contains(neighbor) && !gameWorld.isWall(neighbor) && !gameWorld.isGhostHouseDoor(neighbor)
+      ).count();
+      Double amountToReceive = occupancyValue / numValidNeighbors;
+      //Reload stream after terminating with count
+      Stream<V2i> validNeighbors = gameWorld.neighborTiles(seenTile).filter(
+          neighbor -> gameWorld.insideMap(neighbor) && !visitedTiles.contains(neighbor) && !gameWorld.isWall(neighbor) && !gameWorld.isGhostHouseDoor(neighbor)
+      );
+      validNeighbors.forEach(neighbor -> modifyTileOccupancy(neighbor, amountToReceive));
+      occupancy.replace(seenTile, 0.0);
+    }
+
     for (Map.Entry<V2i, Double> tileOccupancy : occupancy.entrySet()) {
       V2i tile = tileOccupancy.getKey();
       Double occupancyValue = tileOccupancy.getValue();
       if (seenTiles.contains(tile)) {
-        wipedAmount += occupancyValue;
-        occupancy.replace(tile, 0.0);
-
-      } else if (GhostID == BLINKY) {
-        Double dispersion = occupancyValue * .01;
-        modifyTileOccupancy(tile, dispersion * -1);
-        Stream<V2i> validNeighbors = gameWorld.neighborTiles(tile).filter(neighbor ->
-            gameWorld.insideMap(neighbor) && !gameWorld.isWall(neighbor) && !gameWorld.isGhostHouseDoor(neighbor));
-        Double amountReceived = dispersion / validNeighbors.count();
-
-        //Reload stream after terminating with count
-        validNeighbors = gameWorld.neighborTiles(tile).filter(neighbor ->
-            gameWorld.insideMap(neighbor) && !gameWorld.isWall(neighbor) && !gameWorld.isGhostHouseDoor(neighbor));
-        validNeighbors.forEach(neighbor -> modifyTileOccupancy(neighbor, amountReceived));
+        continue;
       }
-    }
+      Double dispersion = occupancyValue * .1;
+      modifyTileOccupancy(tile, dispersion * -1);
+      Stream<V2i> validNeighbors = gameWorld.neighborTiles(tile).filter(neighbor ->
+          gameWorld.insideMap(neighbor) && !gameWorld.isWall(neighbor) && !gameWorld.isGhostHouseDoor(neighbor) && !seenTiles.contains(neighbor));
+      Double amountReceived = dispersion / validNeighbors.count();
 
-    long numNonZero = occupancy.values().stream().filter(value -> !value.equals(0.0)).count();
-    Double distributeWiped = wipedAmount / numNonZero;
-    if (numNonZero == 0) {
-      initOccupancy();
-    } else {
-      for (Map.Entry<V2i, Double> tileOccupancy : occupancy.entrySet()) {
-        V2i tile = tileOccupancy.getKey();
-        Double occupancyValue = tileOccupancy.getValue();
-        if (!occupancyValue.equals(0.0)) {
-          modifyTileOccupancy(tile, distributeWiped);
-        }
-      }
+      //Reload stream after terminating with count
+      validNeighbors = gameWorld.neighborTiles(tile).filter(neighbor ->
+          gameWorld.insideMap(neighbor) && !gameWorld.isWall(neighbor) && !gameWorld.isGhostHouseDoor(neighbor) && !seenTiles.contains(neighbor));
+      validNeighbors.forEach(neighbor -> modifyTileOccupancy(neighbor, amountReceived));
     }
   }
 
