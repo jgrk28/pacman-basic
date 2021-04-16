@@ -91,7 +91,17 @@ public class IndividualsHuntingStrategy extends HuntingStrategy {
         continue;
       }
       Double occupancyValue = occupancy.get(seenTile);
-      amountWiped += occupancyValue;
+      long numValidNeighbors = gameWorld.neighborTiles(seenTile).filter(
+          neighbor -> gameWorld.insideMap(neighbor) && !gameWorld.isWall(neighbor) && !gameWorld.isGhostHouseDoor(neighbor) && !seenTiles.contains(neighbor)
+      ).count();
+      if (numValidNeighbors > 0) {
+        double amountDistributed = occupancyValue / numValidNeighbors;
+        Stream<V2i> validNeighbors = gameWorld.neighborTiles(seenTile).filter(neighbor ->
+            gameWorld.insideMap(neighbor) && !gameWorld.isWall(neighbor) && !gameWorld.isGhostHouseDoor(neighbor) && !seenTiles.contains(neighbor));
+        validNeighbors.forEach(neighbor -> modifyTileOccupancy(neighbor, amountDistributed));
+      } else {
+        amountWiped += occupancyValue;
+      }
       occupancy.replace(seenTile, 0.0);
     }
 
