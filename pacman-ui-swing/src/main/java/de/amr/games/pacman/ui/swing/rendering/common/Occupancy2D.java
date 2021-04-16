@@ -4,6 +4,7 @@ import static de.amr.games.pacman.model.world.PacManGameWorld.TS;
 
 import de.amr.games.pacman.controller.PacManGameController;
 import de.amr.games.pacman.lib.V2i;
+import de.amr.games.pacman.model.common.GameVariant;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.HashMap;

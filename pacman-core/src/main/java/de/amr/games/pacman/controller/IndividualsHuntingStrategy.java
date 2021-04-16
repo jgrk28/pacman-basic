@@ -1,5 +1,10 @@
 package de.amr.games.pacman.controller;
 
+import static de.amr.games.pacman.model.common.Ghost.BLINKY;
+import static de.amr.games.pacman.model.common.Ghost.CLYDE;
+import static de.amr.games.pacman.model.common.Ghost.INKY;
+import static de.amr.games.pacman.model.common.Ghost.PINKY;
+
 import de.amr.games.pacman.lib.V2i;
 import de.amr.games.pacman.model.common.AbstractGameModel;
 import de.amr.games.pacman.model.common.Ghost;
@@ -48,14 +53,10 @@ public class IndividualsHuntingStrategy extends HuntingStrategy {
       initOccupancy();
     }
 
-    List<V2i> seenTiles = new ArrayList<>();
+    Set<V2i> seenTiles = new HashSet<>();
     V2i pacTile = gameModel.player.tile();
     for (Ghost ghost : gameModel.ghosts) {
-      V2i ghostTile = ghost.tile();
-      for (int i = 0; i <= 4; i++) {
-        V2i aheadGhost = ghostTile.plus(gameModel.ghosts[ghostID].dir.vec.scaled(i));
-        seenTiles.add(aheadGhost);
-      }
+      seenTiles.addAll(getSeenTiles(ghost));
     }
 
     if (seenTiles.contains(pacTile)) {
@@ -80,7 +81,7 @@ public class IndividualsHuntingStrategy extends HuntingStrategy {
     return target;
   }
 
-  private void recalculateOccupancy(List<V2i> seenTiles, int ghostID) {
+  private void recalculateOccupancy(Set<V2i> seenTiles, int ghostID) {
     Set<V2i> visitedTiles = new HashSet<>();
     Double amountWiped = 0.0;
 
@@ -131,6 +132,34 @@ public class IndividualsHuntingStrategy extends HuntingStrategy {
     double originalOccupancy = occupancy.get(tile);
     double newOccupancy = originalOccupancy + amount;
     occupancy.replace(tile, newOccupancy);
+  }
+
+  private Set<V2i> getSeenTiles(Ghost ghost) {
+    Set<V2i> seenTiles = new HashSet<>();
+    V2i ghostTile = ghost.tile();
+    switch (ghost.id) {
+      case INKY:
+        for (int i = 0; i <= 8; i++) {
+          V2i aheadGhost = ghostTile.plus(gameModel.ghosts[ghost.id].dir.vec.scaled(i));
+          seenTiles.add(aheadGhost);
+        }
+        break;
+      case BLINKY:
+      case PINKY:
+        for (int i = 0; i <= 4; i++) {
+          V2i aheadGhost = ghostTile.plus(gameModel.ghosts[ghost.id].dir.vec.scaled(i));
+          if (gameWorld.isWall(aheadGhost)) {
+            break;
+          }
+          seenTiles.add(aheadGhost);
+        }
+        break;
+      case CLYDE:
+        Stream<V2i> radiusTiles = gameWorld.tiles().filter(tile -> tile.euclideanDistance(ghostTile) <= 6);
+        radiusTiles.forEach(tile -> seenTiles.add(tile));
+        break;
+    }
+    return seenTiles;
   }
 
 }

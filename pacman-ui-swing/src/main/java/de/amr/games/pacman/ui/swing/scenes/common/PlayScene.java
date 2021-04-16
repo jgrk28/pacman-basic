@@ -3,9 +3,12 @@ package de.amr.games.pacman.ui.swing.scenes.common;
 import static de.amr.games.pacman.model.world.PacManGameWorld.t;
 
 import de.amr.games.pacman.controller.OccupancyHuntingStrategy;
+import de.amr.games.pacman.model.common.GameVariant;
+import de.amr.games.pacman.ui.swing.rendering.common.GhostVision2D;
 import de.amr.games.pacman.ui.swing.rendering.common.Occupancy2D;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,6 +44,7 @@ public class PlayScene extends GameScene {
 
 	private Player2D player2D;
 	private List<Ghost2D> ghosts2D;
+	private List<GhostVision2D> ghostsVision2D;
 	private Occupancy2D occupancy2D;
 	private List<Energizer2D> energizers2D;
 	private Bonus2D bonus2D;
@@ -61,6 +65,9 @@ public class PlayScene extends GameScene {
 		ghosts2D.forEach(ghost2D -> ghost2D.setRendering(rendering));
 
 		occupancy2D = new Occupancy2D(gameController);
+
+		ghostsVision2D = new ArrayList<>();
+		game().ghosts().forEach(ghost -> ghostsVision2D.add(new GhostVision2D(ghost, gameController)));
 
 		energizers2D = game().currentLevel.world.energizerTiles().map(Energizer2D::new).collect(Collectors.toList());
 
@@ -260,7 +267,17 @@ public class PlayScene extends GameScene {
 		} else {
 			rendering.drawGameState(g, game(), gameController.state);
 		}
-		occupancy2D.render(g);
+
+		if (gameController.gameVariant() == GameVariant.INDIVIDUALS || gameController.gameVariant() == GameVariant.OCCUPANCY) {
+			occupancy2D.render(g);
+		}
+
+		if (gameController.gameVariant() == GameVariant.INDIVIDUALS) {
+			ghostsVision2D.forEach(ghostVision2D -> {
+				ghostVision2D.render(g);
+			});
+		}
+
 		bonus2D.render(g);
 		player2D.render(g);
 		ghosts2D.forEach(ghost2D -> {
